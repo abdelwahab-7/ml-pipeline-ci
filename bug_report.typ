@@ -5,26 +5,15 @@ This report details all bugs found in the original YAML workflow file and their 
 
 == Original Issues and Solutions
 
-=== Bug 1: Missing Indentation
+=== Bug 1: Missing Checkout Step
 
-*Problem:* The YAML file had no indentation, which is required in YAML syntax.
+*Problem:* The workflow did not check out the repository code before trying to access files like `requirements.txt`. This caused the pipeline to fail because the runner had no access to any repository files.
 
-Example from original:
-```yaml
-name: ML Model CI
-on:
-push:
-branches: main
-```
-
-*Solution:* Applied proper 2-space indentation for all nested elements:
+*Solution:* Added `actions/checkout@v4` as the first step:
 
 ```yaml
-name: ML Model CI
-on:
-  push:
-    branches-ignore: [main]
-  pull_request:
+- name: Checkout code
+  uses: actions/checkout@v4
 ```
 
 === Bug 2: Empty Linter Check Step
@@ -91,15 +80,15 @@ on:
 
 == Summary of Fixes
 
-- Fixed indentation throughout (2 spaces)
-- Added linter commands to check Python code quality
+- Added missing checkout step to access repository files
+- Completed the empty linter check step with flake8 commands
 - Modified trigger to run on all branches except main
 - Added artifact upload for README.md documentation
 - Completed missing YAML structure elements
-- Added requirements.txt to ensure dependencies are installed
 
 The final workflow now:
 - Triggers on push to any branch except main, plus pull requests
+- Checks out repository code
 - Sets up Python 3.10 environment
 - Installs dependencies from requirements.txt
 - Runs comprehensive linting checks
